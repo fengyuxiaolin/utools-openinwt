@@ -1,0 +1,10 @@
+{
+  "name": "utools-openinwt",
+  "version": "1.0.0",
+  "description": "open dir in wt",
+  "main": "preload.js",
+  "license": "ISC",
+  "dependencies": {
+    "node-cmd": "^5.0.0"
+  }
+}

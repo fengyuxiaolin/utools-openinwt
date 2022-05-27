@@ -1,0 +1,52 @@
+{
+  "logo": "logo.png",
+  "preload": "preload.js",
+  "platform": [
+    "win32"
+  ],
+  "features": [
+    {
+      "code": "openInWt",
+      "explain": "在windows terminal中打开",
+      "cmds": [
+        "cmd",
+        "wt",
+        "openInWindowsTerminal",
+        "zd",
+        "在WindowsTerminal中打开",
+        "在终端中打开",
+        {
+          "type": "window",
+          "label": "在WindowsTerminal中打开",
+          "match": {
+            "app": [
+              "explorer.exe"
+            ]
+          }
+        },
+        {
+          "type": "files",
+          "label": "在WindowsTerminal中打开",
+          "fileType": "file"
+        }
+      ]
+    },
+    {
+      "code": "fromDir",
+      "explain": "打开多个 wt tab",
+      "cmds": [
+        "在wt中打开多个目录",
+        {
+          "type": "regex",
+          "label": "在wt中打开多个目录",
+          "match": "/^[a-zA-Z]:\\\\(?:w+\\\\?)*/"
+        },
+        {
+          "type": "files",
+          "label": "在wt中打开多个目录",
+          "fileType": "directory"
+        }
+      ]
+    }
+  ]
+}
