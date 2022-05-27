@@ -9,7 +9,7 @@ function enterHandler({ code, type, payload }) {
             window.openWt(wt, url);
         }).catch(err => {
             utools.showNotification('路径读取失败');
-            // utools.outPlugin();
+            window.utools.outPlugin();
         })
     }
 }
@@ -18,18 +18,18 @@ function enterHandler({ code, type, payload }) {
 var nodeCmd = require('node-cmd');
 // 调用 node-cmd 模块用 wt 打开 指定的 url
 window.openWt = function(wt, url) {
+    url = JSON.stringify(url);
     nodeCmd.run(`${wt} -d ${url}`);
-    // utools.outPlugin();
 }
 
 window.openManyTab = function(wt, urls) {
     let endUrl = '';
     urls.forEach(url => {
-        endUrl += ` ; -d ${url}`
+        url = JSON.stringify(url);
+        endUrl += ` ; -d ${url}`;
     })
     endUrl = endUrl.trim();
     endUrl = endUrl.slice(1);
-    // utools.setSubInputValue(wt + endUrl);
     nodeCmd.run(`${wt} ${endUrl}`);
 }
 window.exports = {
@@ -39,6 +39,7 @@ window.exports = {
             enter: (action) => {
                 window.utools.hideMainWindow();
                 enterHandler(action);
+                window.utools.outPlugin();
             }
         }
     },
@@ -48,7 +49,7 @@ window.exports = {
             enter: (action, callbackSetList) => {
                 window.arr = [{
                     title: "打开",
-                    description: '在终端中打开多个tab'
+                    description: '在终端中打开多个tab: 分号将路径加入列表, 直接输入分号则添加一个默认tab, 回车打开全部, 选择单项则打开对应目录'
                 }]
                 if (action.type === 'files') {
                     action.payload.forEach(item => {
@@ -66,6 +67,11 @@ window.exports = {
             },
             search: (ac, word, cb) => {
                 if (word.endsWith(';')) {
+                    // 直接输入 ; 可以打开多个默认tab
+                    // if (!new RegExp(/^[a-zA-Z]:\\(?:\w+\\?)*/).test(word)) {
+                    //     utools.setSubInputValue(word.slice(0, -1));
+                    //     return;
+                    // }
                     arr.push({
                         description: word.slice(0, -1)
                     });
@@ -86,7 +92,9 @@ window.exports = {
                 } else {
                     window.openWt(wt, item.description);
                 }
-                // window.utools.outPlugin();
+                setTimeout(() => {
+                    window.utools.outPlugin();
+                }, 200)
             },
             placeholder: "输入路径, 分号确认, 回车打开全部, 选择打开指定目录"
         }
