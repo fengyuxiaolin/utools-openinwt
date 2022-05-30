@@ -4,12 +4,19 @@ const wt = utools.getPath('home') + `\\AppData\\Local\\Microsoft\\WindowsApps\\w
 function enterHandler({ code, type, payload }) {
     let url = ''
     if (code === 'openInWt') {
+        utools.setSubInput(() => {}, '正在获取路径...', false);
         utools.readCurrentFolderPath().then(path => {
             url = path;
+            setTimeout(() => {
+                window.utools.hideMainWindow();
+            }, 80);
             window.openWt(wt, url);
         }).catch(err => {
-            utools.showNotification('路径读取失败');
-            window.utools.outPlugin();
+            // utools.showNotification('路径读取失败');
+            // utools.outPlugin();
+            // 调用插件打开多个标签的功能
+            window.utools.redirect("在wt中打开多个目录", "");
+            window.utools.showMainWindow();
         })
     }
 }
@@ -18,14 +25,15 @@ function enterHandler({ code, type, payload }) {
 var nodeCmd = require('node-cmd');
 // 调用 node-cmd 模块用 wt 打开 指定的 url
 window.openWt = function(wt, url) {
-    url = JSON.stringify(url);
+    url = JSON.stringify(url).replace(';', '\\;');
     nodeCmd.run(`${wt} -d ${url}`);
+    window.utools.outPlugin();
 }
 
 window.openManyTab = function(wt, urls) {
     let endUrl = '';
     urls.forEach(url => {
-        url = JSON.stringify(url);
+        url = JSON.stringify(url).replace(';', '\\;');
         endUrl += ` ; -d ${url}`;
     })
     endUrl = endUrl.trim();
@@ -36,11 +44,7 @@ window.exports = {
     "openInWt": {
         mode: "none",
         args: {
-            enter: (action) => {
-                window.utools.hideMainWindow();
-                enterHandler(action);
-                window.utools.outPlugin();
-            }
+            enter: action => enterHandler(action)
         }
     },
     "fromDir": {
@@ -67,7 +71,7 @@ window.exports = {
             },
             search: (ac, word, cb) => {
                 if (word.endsWith(';')) {
-                    // 直接输入 ; 可以打开多个默认tab
+                    // 考虑到直接输入 ; 可以打开多个默认tab, 此处宽松匹配不做限制
                     // if (!new RegExp(/^[a-zA-Z]:\\(?:\w+\\?)*/).test(word)) {
                     //     utools.setSubInputValue(word.slice(0, -1));
                     //     return;
@@ -80,7 +84,9 @@ window.exports = {
                 }
             },
             select: (action, item, callbackSetList) => {
-                window.utools.hideMainWindow();
+                setTimeout(() => {
+                    window.utools.hideMainWindow();
+                }, 80);
                 let pathArr = [];
                 if (item.title == '打开') {
                     arr.forEach(item => {
@@ -94,7 +100,7 @@ window.exports = {
                 }
                 setTimeout(() => {
                     window.utools.outPlugin();
-                }, 200)
+                }, 80)
             },
             placeholder: "输入路径, 分号确认, 回车打开全部, 选择打开指定目录"
         }
